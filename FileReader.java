@@ -3,7 +3,10 @@ import java.util.stream.Collectors;
 import java.io.*;
 
 public class FileReader{
-    public static void main(String args[]){
+    public static int noOfProcesses;
+    public static List<Integer> processIds;
+    public static Map<Integer, List<Integer>> graph;
+    public FileReader(){
         try{
             File fileObj = new File("input.txt");
             Scanner scanObj = new Scanner(fileObj);
@@ -11,9 +14,9 @@ public class FileReader{
             while(scanObj.hasNextLine()){
                 inputData.add(scanObj.nextLine());
             }
-            int noOfProcesses = Integer.valueOf(inputData.get(0));
-            List<Integer> processIds = Arrays.asList(inputData.get(1).split(" ")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
-            Map<Integer, List<Integer>> graph = new HashMap<>();
+            noOfProcesses = Integer.valueOf(inputData.get(0));
+            processIds = Arrays.asList(inputData.get(1).split(" ")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+            graph = new HashMap<>();
             for(int i =0; i < noOfProcesses; i++){
                 graph.put(processIds.get(i), Arrays.asList(inputData.get(i+2).split(" ")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList()));
             }

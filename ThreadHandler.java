@@ -1,13 +1,12 @@
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
-public class ThreadHandler {
+public class ThreadHandler{
+    static SharedMemory sharedMemory = new SharedMemory();
 
-    List<String> processState;
-    Set<Integer> MIS;
-    int[] awake;
-
-
-
+    public static void main(String args[]){
+        Thread t1 = new Thread(new Node(sharedMemory));
+    }
 
 }
