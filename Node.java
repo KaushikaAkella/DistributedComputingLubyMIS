@@ -1,11 +1,17 @@
 public class Node extends Thread{
-    int uniqueIdentifier;
-    int tempId;
-    int[] rem_nbrs;
-    Node thread = new Node();
+    private int uniqueIdentifier;
+    private int tempId;
+    private int[] rem_nbrs;
+    private Node thread = new Node();
 
+    //Method to get Temp Id
+    public int getTempId(){
+        return tempId;
+    }
 
-    //Start the threaddca
-    //
+    //Start the thread
+    public void run(){
+       //LubyMIS algo trigger
+    }
 
 }
