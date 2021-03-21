@@ -7,10 +7,10 @@ public class Node implements Runnable{
     FileReader fileReader = new FileReader();
     private int uId;
     private int tempId;
-    private Set<Integer> neighbors; //uidindices
+    private List<Integer> neighbors; //uidindices
     int round = 1;
 
-    public Node(SharedMemory sharedMemory, int uId, int tempId, Set<Integer> neighbors){
+    public Node(SharedMemory sharedMemory, int uId, List<Integer> neighbors){
         this.sharedMemory = sharedMemory;
         this.uId=uId;
         this.tempId=tempId;

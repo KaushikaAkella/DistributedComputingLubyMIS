@@ -11,4 +11,5 @@ public class SharedMemory {
     public static List<Integer> pIds;
     public static Map<Integer,Integer> pIdMap; // {0:0, 1:1, 2:2} - pid, pidindex
     public static List<Integer> tempIds;
+    public static Map<Integer, Node> processThread;
 }

@@ -18,7 +18,14 @@ public class FileReader{
             processIds = Arrays.asList(inputData.get(1).split(" ")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
             graph = new HashMap<>();
             for(int i =0; i < noOfProcesses; i++){
-                graph.put(processIds.get(i), Arrays.asList(inputData.get(i+2).split(" ")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList()));
+                List<Integer> neighbors = Arrays.asList(inputData.get(i+2).split(" ")).stream().map(s -> Integer.valueOf(s)).collect(Collectors.toList());
+                List<Integer> neighborIds = new ArrayList<>();
+                for(int j = 0; j < neighbors.size(); j++){
+                    if(neighbors.get(j) == 1){
+                        neighborIds.add(processIds.get(j));
+                    }
+                }
+                graph.put(processIds.get(i), neighborIds);
             }
         }
         catch (FileNotFoundException e){
