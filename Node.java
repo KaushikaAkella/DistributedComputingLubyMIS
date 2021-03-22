@@ -32,9 +32,12 @@ public class Node implements Runnable{
     }
 
     public void run() {
+        System.out.println("Running the thread with ");
         //get id from all nbrs, compare and set status
         int currentIdx = sharedMemory.pIdMap.get(uId);
+        System.out.println("current idx"+currentIdx);
         int awake = sharedMemory.awake.get(currentIdx);
+        System.out.println("awake is "+awake);
         int count=0;
         int round = 1;
         while(round <= 3){
@@ -95,7 +98,8 @@ public class Node implements Runnable{
                     }
                     neighbors.removeAll(loserNbrs);
                 }
-
+                System.out.println("The status of the process is "+status);
+                System.out.println("neighbors are "+neighbors);
                 round = (round+1)%3;
         }
 
