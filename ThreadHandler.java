@@ -40,7 +40,7 @@ public class ThreadHandler{
             }
 
             System.out.println("Round 2");
-            sharedMemory.round++;
+            sharedMemory.round = (sharedMemory.round + 1) % 3;
 
             for(int i=0;i<sharedMemory.noOfProcesses;i++){
                 threads[i] = new Thread(nodes.get(i));
@@ -51,7 +51,7 @@ public class ThreadHandler{
             }
 
             System.out.println("Round 3");
-            sharedMemory.round++;
+            sharedMemory.round = (sharedMemory.round + 1) % 3;
 
             for(int i=0;i<sharedMemory.noOfProcesses;i++){
                 threads[i] = new Thread(nodes.get(i));

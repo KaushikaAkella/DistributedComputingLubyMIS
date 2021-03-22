@@ -56,6 +56,13 @@ public class Node implements  Runnable {
                             return;
                         }
                     }
+                    if(status==-1 && neighbors.size() == 0){
+                        synchronized (sharedMemory.MIS){
+                            sharedMemory.MIS.add(uId);
+                            sharedMemory.winners.add(uId);
+                        }
+                        status = 1;
+                    }
                     if(count==neighbors.size()) {
                         synchronized (sharedMemory.MIS){
                             sharedMemory.MIS.add(uId);
@@ -106,7 +113,6 @@ public class Node implements  Runnable {
                     if(status==1 || status==0){
                         sharedMemory.awake.add(currentIdx,0);
                     }
-
                     Iterator nbr_itr = neighbors.iterator();
                     Set<Integer> loserNbrs = new HashSet<>();;
                     while(nbr_itr.hasNext()){
@@ -129,7 +135,6 @@ public class Node implements  Runnable {
                 }
 //                System.out.println("The status of the process is "+status);
 //                System.out.println("neighbors are "+neighbors);
-                round = (round+1);
        // }
 
         }
