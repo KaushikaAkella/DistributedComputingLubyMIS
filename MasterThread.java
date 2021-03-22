@@ -11,5 +11,4 @@ public class MasterThread extends Thread {
     List<Integer> processStatus = new ArrayList<>();
     public static Map<Integer,Integer> pIdMap; // {0:0, 1:1, 2:2} - pid, pidindex
     int phase = 0;
-
 }

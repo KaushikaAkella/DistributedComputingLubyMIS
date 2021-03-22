@@ -1,6 +1,4 @@
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Node implements Runnable{
     SharedMemory sharedMemory = new SharedMemory();
@@ -9,11 +7,11 @@ public class Node implements Runnable{
     private int tempId;
     private List<Integer> neighbors; //uidindices
     int round = 1;
+    int status = -1;
 
     public Node(SharedMemory sharedMemory, int uId, List<Integer> neighbors){
         this.sharedMemory = sharedMemory;
         this.uId=uId;
-        this.tempId=tempId;
         this.neighbors=neighbors;
     }
 
@@ -22,19 +20,81 @@ public class Node implements Runnable{
     public int getTempId(){
         return tempId;
     }
+
+    //status = -1:unknown , 0:loser , 1:winner
+    public int getStatus(){
+        return status;
+    }
+
     public int setTempId(){
         int maxId = (int) Math.pow(fileReader.noOfProcesses, 4);
         return (int)(Math.random()*maxId + 1);
     }
 
     public void run() {
-        //Send id to all nbrs , get id from all nbrs
-        //compare and set status
-        //If sts is winner ->
+        //get id from all nbrs, compare and set status
+        int currentIdx = sharedMemory.pIdMap.get(uId);
+        int awake = sharedMemory.awake.get(currentIdx);
+        int count=0;
 
+
+        if(awake==1){
+            //Round 1
+            if(round==1){
+                setTempId();
+                Iterator nbr_itr = neighbors.iterator();
+                while(nbr_itr.hasNext()){
+                    int nbrUId = (int) nbr_itr.next();
+                    Node nbrNode = sharedMemory.processThread.get(nbrUId);
+                    int nbrTempId = nbrNode.getTempId();
+                    if(tempId > nbrTempId){
+                         count++;
+                    }else if(tempId == nbrTempId){
+                        //stop thread execution
+                    }
+                }
+            }
+            //Round 2
+            else if(round==2){
+                if(count==neighbors.size()) {
+                    synchronized (sharedMemory.MIS){
+                        sharedMemory.MIS.add(uId);
+                    }
+                    status = 1;
+                    this.neighbors = new ArrayList<>();
+                }
+
+                if(count < neighbors.size()){
+                    status = 0;
+                }
+
+                if(status==-1 && neighbors.size()==0)
+                {
+                    synchronized (sharedMemory.MIS){
+                        sharedMemory.MIS.add(uId);
+                    }
+                }
+            //Round 3
+            } else if (round == 3) {
+                if(status==1 || status==0){
+                    sharedMemory.awake.add(currentIdx,0);
+                    }
+
+                Iterator nbr_itr = neighbors.iterator();
+                Set<Integer> loserNbrs = new HashSet<>();;
+                while(nbr_itr.hasNext()){
+                    int nbrUId = (int) nbr_itr.next();
+                    Node nbrNode = sharedMemory.processThread.get(nbrUId);
+                    int nbrStatus = nbrNode.getStatus();
+                    if(nbrStatus==0){
+                        loserNbrs.add(nbrUId);
+                    }
+                }
+                neighbors.removeAll(loserNbrs);
+            }
+
+            round = (round+1)%3;
+        }
     }
-
-    //Start the thread
-
 
 }
