@@ -7,9 +7,10 @@ public class SharedMemory {
     public static Set<Integer> MIS = new HashSet<>();
     public static List<Integer> awake = new ArrayList<>();
 //    public static List<Integer> pIds;
-    public static List<Integer> winners = new ArrayList<>();
-    public static List<Integer> losers = new ArrayList<>();
+    public static Set<Integer> winners = new HashSet<>();
+    public static Set<Integer> losers = new HashSet<>();
     public static Map<Integer,Integer> pIdMap = new HashMap<>(); // {0:0, 1:1, 2:2} - pid, pidindex
 //    public static List<Integer> tempIds;
     public static Map<Integer, Node> processThread = new HashMap<>();
+    public static int round = 1;
 }
