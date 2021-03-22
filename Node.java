@@ -36,64 +36,70 @@ public class Node implements Runnable{
         int currentIdx = sharedMemory.pIdMap.get(uId);
         int awake = sharedMemory.awake.get(currentIdx);
         int count=0;
-
-
-        if(awake==1){
-            //Round 1
-            if(round==1){
-                setTempId();
-                Iterator nbr_itr = neighbors.iterator();
-                while(nbr_itr.hasNext()){
-                    int nbrUId = (int) nbr_itr.next();
-                    Node nbrNode = sharedMemory.processThread.get(nbrUId);
-                    int nbrTempId = nbrNode.getTempId();
-                    if(tempId > nbrTempId){
-                         count++;
-                    }else if(tempId == nbrTempId){
-                        //stop thread execution
+        int round = 1;
+        while(round <= 3){
+            if(awake==1){
+                //Round 1
+                if(round==1){
+                    setTempId();
+                    Iterator nbr_itr = neighbors.iterator();
+                    while(nbr_itr.hasNext()){
+                        int nbrUId = (int) nbr_itr.next();
+                        Node nbrNode = sharedMemory.processThread.get(nbrUId);
+                        int nbrTempId = nbrNode.getTempId();
+                        if(tempId > nbrTempId){
+                            count++;
+                        }else if(tempId == nbrTempId){
+                            break;
+                        }
                     }
                 }
-            }
-            //Round 2
-            else if(round==2){
-                if(count==neighbors.size()) {
-                    synchronized (sharedMemory.MIS){
-                        sharedMemory.MIS.add(uId);
-                    }
-                    status = 1;
-                    this.neighbors = new ArrayList<>();
-                }
-
-                if(count < neighbors.size()){
-                    status = 0;
-                }
-
-                if(status==-1 && neighbors.size()==0)
-                {
-                    synchronized (sharedMemory.MIS){
-                        sharedMemory.MIS.add(uId);
-                    }
-                }
-            //Round 3
-            } else if (round == 3) {
-                if(status==1 || status==0){
-                    sharedMemory.awake.add(currentIdx,0);
+                //Round 2
+                else if(round==2){
+                    if(count==neighbors.size()) {
+                        synchronized (sharedMemory.MIS){
+                            sharedMemory.MIS.add(uId);
+                            sharedMemory.winners.add(uId);
+                        }
+                        status = 1;
+                        this.neighbors = new ArrayList<>();
                     }
 
-                Iterator nbr_itr = neighbors.iterator();
-                Set<Integer> loserNbrs = new HashSet<>();;
-                while(nbr_itr.hasNext()){
-                    int nbrUId = (int) nbr_itr.next();
-                    Node nbrNode = sharedMemory.processThread.get(nbrUId);
-                    int nbrStatus = nbrNode.getStatus();
-                    if(nbrStatus==0){
-                        loserNbrs.add(nbrUId);
+                    if(count < neighbors.size()){
+                        status = 0;
+                        sharedMemory.losers.add(uId);
                     }
-                }
-                neighbors.removeAll(loserNbrs);
-            }
 
-            round = (round+1)%3;
+                    if(status==-1 && neighbors.size()==0)
+                    {
+                        synchronized (sharedMemory.MIS){
+                            sharedMemory.MIS.add(uId);
+                            sharedMemory.winners.add(uId);
+                        }
+                    }
+                    //Round 3
+                } else if (round == 3) {
+                    if(status==1 || status==0){
+                        sharedMemory.awake.add(currentIdx,0);
+                    }
+
+                    Iterator nbr_itr = neighbors.iterator();
+                    Set<Integer> loserNbrs = new HashSet<>();;
+                    while(nbr_itr.hasNext()){
+                        int nbrUId = (int) nbr_itr.next();
+                        Node nbrNode = sharedMemory.processThread.get(nbrUId);
+                        int nbrStatus = nbrNode.getStatus();
+                        if(nbrStatus==0){
+                            loserNbrs.add(nbrUId);
+                        }
+                    }
+                    neighbors.removeAll(loserNbrs);
+                }
+
+                round = (round+1)%3;
+        }
+
+
         }
     }
 
