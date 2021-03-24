@@ -1,13 +1,16 @@
+import com.sun.source.tree.LiteralTree;
+
 import java.io.File;
 import java.util.*;
 
-public class ThreadHandler{
+public class ThreadHandler implements Runnable{
     static SharedMemory sharedMemory = new SharedMemory();
     static FileReader fileReader = new FileReader();
 
-    public static void main(String args[]) throws InterruptedException {
+    public void run(){
         System.out.println("Starting thread handler");
-        List<Node> nodes = new ArrayList<>();
+
+        Map<Integer, Node> nodes = new HashMap<>();
         for(int i = 0; i < sharedMemory.noOfProcesses;i++){
             sharedMemory.pIdMap.put(fileReader.processIds.get(i),i);
         }
@@ -19,7 +22,7 @@ public class ThreadHandler{
             List<Integer> neighbors = fileReader.graph.get(uId);
             Node node = new Node(sharedMemory,  uId, neighbors);
             sharedMemory.processThread.put(uId, node);
-            nodes.add(node);
+            nodes.put(uId, node);
         }
 
         int phase = 0;
@@ -29,47 +32,94 @@ public class ThreadHandler{
         }
 
         Set<Integer> candidateSet = new HashSet<>(fileReader.processIds);
-        Thread[] threads = new Thread[sharedMemory.noOfProcesses];
+        for(int i = 0; i < sharedMemory.noOfProcesses; i++){
+            sharedMemory.processStatus.add(0);
+        }
         while(!candidateSet.isEmpty()){
-            for(int i=0;i<sharedMemory.noOfProcesses;i++){
-                threads[i] = new Thread(nodes.get(i));
-                threads[i].start();
+            int moveToNextRound = 0;
+            System.out.println("Round 1");
+            List<Thread> threads = new ArrayList<>();
+
+            for(Map.Entry<Integer, Node> entry : nodes.entrySet()){
+                Thread thread = new Thread(entry.getValue());
+                threads.add(thread);
+                thread.start();
             }
             for (Thread thread : threads) {
-                thread.join();
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+            if(sharedMemory.processStatus.contains(0)){
+                moveToNextRound = 0;
+            }
+            else{
+                moveToNextRound = 1;
+            }
+            if(moveToNextRound == 1){
+                System.out.println("Round 2");
+                sharedMemory.round++;
 
-            System.out.println("Round 2");
-            sharedMemory.round = (sharedMemory.round + 1) % 3;
-
-            for(int i=0;i<sharedMemory.noOfProcesses;i++){
-                threads[i] = new Thread(nodes.get(i));
-                threads[i].start();
+                for(Map.Entry<Integer, Node> entry : nodes.entrySet()){
+                    Thread thread = new Thread(entry.getValue());
+                    threads.add(thread);
+                    thread.start();
+                }
+                for (Thread thread : threads) {
+                    try {
+                        thread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-            for (Thread thread : threads) {
-                thread.join();
+            if(sharedMemory.processStatus.contains(0)){
+                moveToNextRound = 0;
             }
-
-            System.out.println("Round 3");
-            sharedMemory.round = (sharedMemory.round + 1) % 3;
-
-            for(int i=0;i<sharedMemory.noOfProcesses;i++){
-                threads[i] = new Thread(nodes.get(i));
-                threads[i].start();
+            else{
+                moveToNextRound = 1;
             }
-            for (Thread thread : threads) {
-                thread.join();
+            Iterator candidateSetItr = candidateSet.iterator();
+            while(candidateSetItr.hasNext()) {
+                sharedMemory.processStatus.set(sharedMemory.pIdMap.get((int) candidateSetItr.next()), 0);
             }
-            phase++;
-            System.out.println(sharedMemory.winners +"///"+sharedMemory.losers+"///"+candidateSet);
-            candidateSet.removeAll(sharedMemory.winners);
-            candidateSet.removeAll(sharedMemory.losers);
-            for(int i =0; i <  fileReader.processIds.size(); i++){
-                if(!candidateSet.contains(fileReader.processIds.get(i))){
-                    nodes.remove(sharedMemory.pIdMap.get(fileReader.processIds.get(i)));
+            if(moveToNextRound == 1){
+                System.out.println("Round 3");
+                sharedMemory.round++;
+                for(Map.Entry<Integer, Node> entry : nodes.entrySet()){
+                    Thread thread = new Thread(entry.getValue());
+                    threads.add(thread);
+                    thread.start();
+                }
+                for (Thread thread : threads) {
+                    try {
+                        thread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
+            phase++;
+
+            sharedMemory.round = 1;
+            System.out.println("phase "+phase);
+            System.out.println(sharedMemory.winners +"///"+sharedMemory.losers+"///"+candidateSet);
+            candidateSet.removeAll(sharedMemory.winners);
+            candidateSet.removeAll(sharedMemory.losers);
+            Iterator itr = sharedMemory.winners.iterator();
+            while(itr.hasNext()){
+                nodes.remove((int)itr.next());
+            }
+            itr = sharedMemory.losers.iterator();
+            while(itr.hasNext()){
+                nodes.remove((int)itr.next());
+            }
+            for(Map.Entry<Integer, Node> entry : nodes.entrySet()){
+                entry.getValue().setTempIdPhase();
+            }
         }
 
 
@@ -118,5 +168,8 @@ public class ThreadHandler{
         System.out.println("hereeeeeee"+candidateSet.size());
         System.out.println(sharedMemory.MIS);
     }
+//    public static void main(String args[]) throws InterruptedException {
+//
+//    }
 
 }

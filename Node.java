@@ -16,6 +16,9 @@ public class Node implements  Runnable {
         this.tempId = setTempId();
     }
 
+    public void setTempIdPhase(){
+        this.tempId = setTempId();
+    }
 
     //Method to get Temp Id
     public int getTempId(){
@@ -42,8 +45,9 @@ public class Node implements  Runnable {
             if(awake==1){
                 //Round 1
                 if(sharedMemory.round==1){
+                    count = 0;
                   //  System.out.println("R1");
-                    setTempId();
+//                    setTempId();
                     Iterator nbr_itr = neighbors.iterator();
                     while(nbr_itr.hasNext()){
                         int nbrUId = (int) nbr_itr.next();
@@ -72,6 +76,7 @@ public class Node implements  Runnable {
                         //sthis.neighbors = new ArrayList<>();
                     }
                     System.out.println("UID "+uId+"/// TEMP ID "+tempId+" ///count "+count+" ///NBRS "+neighbors.size());
+                    sharedMemory.processStatus.set(sharedMemory.pIdMap.get(uId), 1);
                 }
                 //Round 2
                 else if(sharedMemory.round==2){
@@ -107,6 +112,7 @@ public class Node implements  Runnable {
                     }
 
                     System.out.println("UID "+uId+"/// TEMP ID "+tempId+" ///status "+status+" ///MIS "+sharedMemory.MIS+" ///W "+sharedMemory.winners+" ///L"+sharedMemory.losers);
+                    sharedMemory.processStatus.set(sharedMemory.pIdMap.get(uId), 1);
                 } //Round 3
                 else if (sharedMemory.round == 3) {
                     System.out.println("R3");
@@ -124,14 +130,8 @@ public class Node implements  Runnable {
                         }
                     }
                     neighbors.removeAll(loserNbrs);
-//                    if(status==-1 && neighbors.size()==0)
-//                    {
-//                        synchronized (sharedMemory.MIS){
-//                            sharedMemory.MIS.add(uId);
-//                            sharedMemory.winners.add(uId);
-//                        }
-//                    }
                     System.out.println("UID "+uId+"/// TEMP ID "+tempId+" ///neighbors "+neighbors+" ///loserNbrs "+loserNbrs);
+                    sharedMemory.processStatus.set(sharedMemory.pIdMap.get(uId), 1);
                 }
 //                System.out.println("The status of the process is "+status);
 //                System.out.println("neighbors are "+neighbors);
