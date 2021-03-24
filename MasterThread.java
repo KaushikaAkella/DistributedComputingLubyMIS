@@ -3,9 +3,10 @@ import com.sun.source.tree.LiteralTree;
 import java.io.File;
 import java.util.*;
 
-public class ThreadHandler implements Runnable{
+public class MasterThread implements Runnable{
     static SharedMemory sharedMemory = new SharedMemory();
     static FileReader fileReader = new FileReader();
+
 
     public void run(){
         System.out.println("Starting thread handler");
@@ -121,7 +122,6 @@ public class ThreadHandler implements Runnable{
                 entry.getValue().setTempIdPhase();
             }
         }
-
 
 
 //        Set<Integer> candidateSet = new HashSet<>(fileReader.processIds);
