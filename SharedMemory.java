@@ -14,4 +14,5 @@ public class SharedMemory {
     public static Map<Integer, Node> processThread = new HashMap<>();
     public static List<Integer> processStatus = new ArrayList<>();
     public static int round = 1;
+    public static int restartExecution = 0;
 }

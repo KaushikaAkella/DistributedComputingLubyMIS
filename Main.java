@@ -6,6 +6,19 @@ public class Main {
     static SharedMemory sharedMemory = new SharedMemory();
     static FileReader fileReader = new FileReader();
 
+    //Execution starts here - Calling Master Thread
+    public static void main(String args[]) throws InterruptedException {
+        sharedMemory.restartExecution = 1;
+        while(sharedMemory.restartExecution == 1){
+            Thread thr = new Thread(masterThread);
+            thr.start();
+            thr.join();
+        }
+
+        misVerification();
+    }
+
+    //Method to verify MIS validity
     public static void misVerification(){
         int misFalse = 0;
         Iterator itr = sharedMemory.MIS.iterator();
@@ -18,19 +31,12 @@ public class Main {
                 }
             }
         }
+        System.out.println(" \nMIS Verification result \n --------------------------");
         if(misFalse == 1){
-            System.out.println("Generated MIS is incorrect");
+            System.out.println("Generated MIS is invalid");
         }
         else{
-            System.out.println("Generated MIS is correct!");
+            System.out.println("Generated MIS is valid!");
         }
-    }
-
-    public static void main(String args[]) throws InterruptedException {
-        Thread thr = new Thread(masterThread);
-        thr.start();
-        thr.join();
-
-        misVerification();
     }
 }
